@@ -1,0 +1,2 @@
+[alias]
+aoc = "run --package aoc --"
