@@ -1,4 +1,9 @@
-use std::{fs::OpenOptions, io::Write, os::unix::process::CommandExt, path::Path};
+use std::{
+    fs::OpenOptions,
+    io::Write,
+    os::unix::process::CommandExt,
+    path::{Path, PathBuf},
+};
 
 use bstr::ByteSlice;
 use chrono::{Datelike, Local};
@@ -12,6 +17,8 @@ pub struct Args {
     day: Option<u32>,
     #[arg(short, long)]
     part: Option<u32>,
+    #[arg(short, long)]
+    input: Option<PathBuf>,
     #[arg(short, long, env = "AOC_COOKIE")]
     cookie: Option<String>,
     #[arg(long)]
@@ -84,6 +91,8 @@ fn main() -> color_eyre::Result<()> {
         }
         Some(Command::Fetch) => fetch(day, &inputs_dir, &args.cookie)?,
         Some(Command::Run) | None => {
+            let input = args.input.unwrap_or(input);
+
             if !input.exists() {
                 fetch(day, &inputs_dir, &args.cookie)?;
             }
