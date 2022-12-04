@@ -5,7 +5,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use bstr::ByteSlice;
 use chrono::{Datelike, Local};
 use clap::Parser;
 use color_eyre::eyre;
@@ -74,19 +73,20 @@ fn main() -> color_eyre::Result<()> {
     }
 
     let day_str = format!("day{day}");
+    let day_file = workspace.join(format!("problems/src/bin/{day_str}.rs"));
 
     let input = inputs_dir.join(&day_str);
 
     match args.command {
         Some(Command::Edit) => {
             return Err(std::process::Command::new(std::env::var("EDITOR")?)
-                .arg(workspace.join(format!("problems/src/bin/{day_str}.rs")))
+                .arg(day_file)
                 .exec()
                 .into());
         }
         Some(Command::Init) => {
             let template = workspace.join("template.rs");
-            let day = workspace.join(format!("problems/src/bin/{day_str}.rs"));
+            let day = workspace.join(day_file);
             std::fs::copy(template, day)?;
         }
         Some(Command::Fetch) => fetch(day, &inputs_dir, &args.cookie)?,
@@ -97,15 +97,13 @@ fn main() -> color_eyre::Result<()> {
                 fetch(day, &inputs_dir, &args.cookie)?;
             }
 
-            let mut command = std::process::Command::new(env!("CARGO"));
-            let impl_parts = command
-                .current_dir(workspace)
-                .args(["run", "--package", "problems", "--bin"])
-                .arg(&day_str)
-                .args(["--", "--part", "1", "--input", "void", "--show-impl-parts"])
-                .output()?;
+            let day_impl = std::fs::read_to_string(day_file)?;
+            let impl_part = if day_impl.contains(r#"todo!("todo part2")"#) {
+                1
+            } else {
+                2
+            };
 
-            let impl_part: u32 = impl_parts.stdout.to_str()?.trim().parse()?;
             let part = args.part.unwrap_or(impl_part);
 
             println!("==> Running day {day} part {}", part);
