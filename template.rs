@@ -18,7 +18,7 @@ fn part2(input: Parsed) {
 }
 
 fn main() -> color_eyre::Result<()> {
-    let context = load(1)?;
+    let context = load()?;
 
     let start = Instant::now();
     let parsed = parsing(&context.input)?;
