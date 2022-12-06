@@ -1,7 +1,7 @@
 use std::time::Instant;
 
-use bstr::BString;
 use crate::{load, print_res};
+use bstr::BString;
 
 type Parsed = ();
 
