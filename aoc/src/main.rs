@@ -73,7 +73,8 @@ fn main() -> color_eyre::Result<()> {
     }
 
     let day_str = format!("day{day}");
-    let day_file = workspace.join(format!("problems/src/bin/{day_str}.rs"));
+    let day_file = workspace.join(format!("problems/src/solutions/{day_str}.rs"));
+    let day_bin_file = workspace.join(format!("problems/src/bin/{day_str}.rs"));
 
     let input = inputs_dir.join(&day_str);
 
@@ -88,6 +89,21 @@ fn main() -> color_eyre::Result<()> {
             let template = workspace.join("template.rs");
             let day = workspace.join(day_file);
             std::fs::copy(template, day)?;
+
+            let bin_content = format!(
+                r#"
+                fn main() -> color_eyre::Result<()> {{
+                    problems::solutions::{day_str}::main()
+                }}
+            "#
+            );
+
+            std::fs::write(day_bin_file, bin_content.as_bytes())?;
+
+            let mut solution_mod = OpenOptions::new()
+                .append(true)
+                .open(workspace.join("problems/src/solutions/mod.rs"))?;
+            writeln!(solution_mod, "pub mod {day_str};")?;
         }
         Some(Command::Fetch) => fetch(day, &inputs_dir, &args.cookie)?,
         Some(Command::Run) | None => {

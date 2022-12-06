@@ -1,23 +1,23 @@
 use std::time::Instant;
 
 use bstr::BString;
-use problems::load;
+use crate::load;
 
 type Parsed = ();
 
-fn parsing(input: &BString) -> color_eyre::Result<Parsed> {
+pub fn parsing(input: &BString) -> color_eyre::Result<Parsed> {
     todo!("Parsing")
 }
 
-fn part1(input: Parsed) {
+pub fn part1(input: Parsed) {
     todo!("todo part1")
 }
 
-fn part2(input: Parsed) {
+pub fn part2(input: Parsed) {
     todo!("todo part2")
 }
 
-fn main() -> color_eyre::Result<()> {
+pub fn main() -> color_eyre::Result<()> {
     let context = load()?;
 
     let start = Instant::now();
