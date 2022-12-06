@@ -1,8 +1,8 @@
 use std::time::Instant;
 
+use crate::{load, print_res};
 use bstr::{BStr, BString, ByteSlice};
 use itertools::Itertools;
-use crate::load;
 
 type Parsed<'a> = Vec<(Vec<u8>, Vec<u8>)>;
 
@@ -54,7 +54,7 @@ fn duplicate(a: &[u8], b: &[u8]) -> usize {
 
 pub fn part1(input: Parsed) {
     let prio_sum: u64 = input.iter().map(|(a, b)| duplicate(a, b) as u64 + 1).sum();
-    println!("Sum of priority: {prio_sum}");
+    print_res!("Sum of priority: {prio_sum}");
 }
 
 fn merge_bag(mut a: [u32; 26 * 2], b: [u32; 26 * 2]) -> [u32; 26 * 2] {
@@ -83,7 +83,7 @@ pub fn part2(input: Parsed) {
         total += present.iter().enumerate().find(|(_, &p)| p == 3).unwrap().0 + 1;
     }
 
-    println!("Total priority: {total}");
+    print_res!("Total priority: {total}");
 }
 
 pub fn main() -> color_eyre::Result<()> {

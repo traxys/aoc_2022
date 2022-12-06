@@ -28,6 +28,15 @@ macro_rules! print_res {
     };
 }
 
+#[macro_export]
+macro_rules! print_res_part {
+    ($($tt:tt)*) => {
+        if (!std::env::var("AOC_BENCH").is_ok()) {
+            println!($($tt)*)
+        }
+    };
+}
+
 pub fn load() -> color_eyre::Result<Context> {
     color_eyre::install()?;
 

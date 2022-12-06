@@ -1,7 +1,7 @@
 use std::time::Instant;
 
+use crate::{load, print_res};
 use bstr::{BString, ByteSlice};
-use crate::load;
 
 type Parsed = Vec<u8>;
 
@@ -28,11 +28,11 @@ fn marker_idx(signal: &[u8], window_size: usize) -> usize {
 }
 
 pub fn part1(input: Parsed) {
-    println!("start of packet marker idx: {}", marker_idx(&input, 4))
+    print_res!("start of packet marker idx: {}", marker_idx(&input, 4))
 }
 
 pub fn part2(input: Parsed) {
-    println!("start of message marker idx: {}", marker_idx(&input, 14))
+    print_res!("start of message marker idx: {}", marker_idx(&input, 14))
 }
 
 pub fn main() -> color_eyre::Result<()> {

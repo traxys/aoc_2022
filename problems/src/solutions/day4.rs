@@ -1,7 +1,7 @@
 use std::{str::FromStr, time::Instant};
 
+use crate::{load, print_res};
 use bstr::{BString, ByteSlice};
-use crate::load;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Range {
@@ -59,12 +59,12 @@ pub fn part1(input: Parsed) {
         .iter()
         .filter(|(a, b)| a.contains_range(b) || b.contains_range(a))
         .count();
-    println!("There are {containg_count} ranges containg others");
+    print_res!("There are {containg_count} ranges containg others");
 }
 
 pub fn part2(input: Parsed) {
     let overlap_count = input.iter().filter(|(a, b)| a.overlap(b)).count();
-    println!("There are {overlap_count} ranges overlapping");
+    print_res!("There are {overlap_count} ranges overlapping");
 }
 
 pub fn main() -> color_eyre::Result<()> {

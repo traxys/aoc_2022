@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, time::Instant};
 
+use crate::{load, print_res, print_res_part};
 use bstr::{BString, ByteSlice};
-use crate::load;
 
 type Parsed = (Vec<VecDeque<u8>>, Vec<(u8, u8, u8)>);
 
@@ -65,12 +65,12 @@ pub fn part1(input: Parsed) {
         }
     }
 
-    print!("Crates are: ");
+    print_res_part!("Crates are: ");
     for mut stack in state {
         let c: char = (stack.pop_front().expect("Stack is empty") + b'A').into();
-        print!("{c}");
+        print_res_part!("{c}");
     }
-    println!()
+    print_res!()
 }
 
 pub fn part2(input: Parsed) {
@@ -86,12 +86,12 @@ pub fn part2(input: Parsed) {
             .for_each(|&i| state[to as usize - 1].push_front(i))
     }
 
-    print!("Crates are: ");
+    print_res_part!("Crates are: ");
     for mut stack in state {
         let c: char = (stack.pop_front().expect("Stack is empty") + b'A').into();
-        print!("{c}");
+        print_res_part!("{c}");
     }
-    println!()
+    print_res!()
 }
 
 pub fn main() -> color_eyre::Result<()> {

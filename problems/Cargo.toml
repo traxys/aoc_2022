@@ -19,7 +19,26 @@ criterion = "0.4"
 name = "day1"
 harness = false
 
-                    [[bench]]
-                    name = "day2"
-                    harness = false
-                
+[[bench]]
+name = "day2"
+harness = false
+
+
+[[bench]]
+name = "day3"
+harness = false
+
+
+[[bench]]
+name = "day4"
+harness = false
+
+
+[[bench]]
+name = "day5"
+harness = false
+
+
+[[bench]]
+name = "day6"
+harness = false

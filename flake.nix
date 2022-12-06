@@ -20,7 +20,7 @@
       rust = pkgs.rust-bin.stable.latest.default;
     in {
       devShell = pkgs.mkShell {
-        nativeBuildInputs = [rust];
+        nativeBuildInputs = [rust pkgs.cargo-criterion];
         RUST_PATH = "${rust}";
         shellHook = ''
           alias rstddoc="firefox ${rust}/share/doc/rust/html/std/index.html"
