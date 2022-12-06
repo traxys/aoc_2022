@@ -3,6 +3,8 @@ use std::path::PathBuf;
 use bstr::BString;
 use clap::Parser;
 
+pub mod solutions;
+
 #[derive(Parser)]
 struct Args {
     #[arg(short, long)]
