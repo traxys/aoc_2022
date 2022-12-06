@@ -19,6 +19,15 @@ pub struct Context {
     pub input: BString,
 }
 
+#[macro_export]
+macro_rules! print_res {
+    ($($tt:tt)*) => {
+        if (!std::env::var("AOC_BENCH").is_ok()) {
+            println!($($tt)*)
+        }
+    };
+}
+
 pub fn load() -> color_eyre::Result<Context> {
     color_eyre::install()?;
 

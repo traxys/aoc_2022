@@ -1,7 +1,7 @@
 use std::time::Instant;
 
+use crate::{load, print_res};
 use bstr::{BString, ByteSlice};
-use crate::load;
 
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum Move {
@@ -10,6 +10,7 @@ pub enum Move {
     Scissors,
 }
 
+#[derive(Clone, Copy)]
 pub enum SecondPart {
     X,
     Y,
@@ -99,7 +100,7 @@ pub fn part1(input: Parsed) {
         })
         .map(|(o, s)| s.value() + s.game(o))
         .sum();
-    println!("Total score is {sum}");
+    print_res!("Total score is {sum}");
 }
 
 pub fn part2(input: Parsed) {
@@ -117,7 +118,7 @@ pub fn part2(input: Parsed) {
         })
         .map(|(o, s)| s.value() + s.game(o))
         .sum();
-    println!("Total score is {sum}");
+    print_res!("Total score is {sum}");
 }
 
 pub fn main() -> color_eyre::Result<()> {

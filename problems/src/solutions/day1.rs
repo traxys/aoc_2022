@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::load;
+use crate::{load, print_res};
 use bstr::{BString, ByteSlice};
 use itertools::Itertools;
 
@@ -20,7 +20,7 @@ pub fn parsing(input: &BString) -> color_eyre::Result<Parsed> {
 
 pub fn part1(input: Parsed) {
     let max = input.iter().map(|b| b.iter().sum::<u64>()).max().unwrap();
-    println!("Max calories are: {max}");
+    print_res!("Max calories are: {max}");
 }
 
 pub fn part2(input: Parsed) {
@@ -30,7 +30,7 @@ pub fn part2(input: Parsed) {
         .sorted_by(|a, b| b.cmp(a))
         .take(3)
         .sum();
-    println!("Sum of three first elf's calories: {first_three}")
+    print_res!("Sum of three first elf's calories: {first_three}")
 }
 
 pub fn main() -> color_eyre::Result<()> {
