@@ -2,6 +2,8 @@ use bstr::BString;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use problems::solutions::day7::*;
 
+mod perf;
+
 fn day_bench(c: &mut Criterion) {
     std::env::set_var("AOC_BENCH", "1");
 
@@ -22,5 +24,9 @@ fn day_bench(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, day_bench);
+criterion_group!{
+    name = benches;
+    config = Criterion::default().with_profiler(perf::FlamegraphProfiler::new(100));
+    targets = day_bench
+}
 criterion_main!(benches);
