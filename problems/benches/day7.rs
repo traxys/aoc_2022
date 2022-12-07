@@ -1,6 +1,6 @@
 use bstr::BString;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use problems::solutions::day6::*;
+use problems::solutions::day7::*;
 
 fn day_bench(c: &mut Criterion) {
     std::env::set_var("AOC_BENCH", "1");
