@@ -7,7 +7,7 @@ use std::{
 
 use chrono::{Datelike, Local};
 use clap::Parser;
-use color_eyre::eyre;
+use color_eyre::eyre::{self, Context};
 use reqwest::header::{self, HeaderValue};
 
 #[derive(Parser, Debug)]
@@ -33,6 +33,8 @@ pub enum Command {
     Fetch,
     Run,
     Bench { criterion_args: Vec<String> },
+    Open,
+    Profile,
 }
 
 fn fetch(day: u32, input_dir: &Path, cookie: &Option<String>) -> color_eyre::Result<()> {
@@ -81,6 +83,9 @@ fn main() -> color_eyre::Result<()> {
     let input = inputs_dir.join(&day_str);
 
     match args.command {
+        Some(Command::Open) => {
+            open::that(format!("https://adventofcode.com/2022/day/{day}"))?;
+        }
         Some(Command::Edit) => {
             return Err(std::process::Command::new(std::env::var("EDITOR")?)
                 .arg(day_file)
@@ -94,10 +99,10 @@ fn main() -> color_eyre::Result<()> {
 
             let bin_content = format!(
                 r#"
-                fn main() -> color_eyre::Result<()> {{
-                    problems::solutions::{day_str}::main()
-                }}
-            "#
+                    fn main() -> color_eyre::Result<()> {{
+                        problems::solutions::{day_str}::main()
+                    }}
+                "#
             );
 
             std::fs::write(day_bin_file, bin_content.as_bytes())?;
@@ -112,6 +117,8 @@ fn main() -> color_eyre::Result<()> {
                     use bstr::BString;
                     use criterion::{{criterion_group, criterion_main, BenchmarkId, Criterion}};
                     use problems::solutions::{day_str}::*;
+
+                    mod perf;
 
                     fn day_bench(c: &mut Criterion) {{
                         std::env::set_var("AOC_BENCH", "1");
@@ -133,7 +140,12 @@ fn main() -> color_eyre::Result<()> {
                         }});
                     }}
 
-                    criterion_group!(benches, day_bench);
+
+                    criterion_group! {{
+                        name = benches;
+                        config = Criterion::default().with_profiler(perf::FlamegraphProfiler::new(100));
+                        targets = day_bench
+                    }}
                     criterion_main!(benches);
                 "#
             );
@@ -152,6 +164,47 @@ fn main() -> color_eyre::Result<()> {
             )?;
         }
         Some(Command::Fetch) => fetch(day, &inputs_dir, &args.cookie)?,
+        Some(Command::Profile) => {
+            let input = args.input.unwrap_or(input);
+
+            if !input.exists() {
+                fetch(day, &inputs_dir, &args.cookie)?;
+            }
+
+            println!("==> Benching day {day}");
+            let mut command = std::process::Command::new(env!("CARGO"));
+            command
+                .env("AOC_INPUT", &input)
+                .current_dir(workspace.join("problems"))
+                .args(["criterion", "--bench"])
+                .arg(&day_str)
+                .args(["--", "--", "--profile-time=5"]);
+
+            if !command.spawn()?.wait()?.success() {
+                color_eyre::eyre::bail!("Criterion returned an error")
+            }
+
+            let criterion_profiles = workspace.join("target/criterion/profile");
+
+            let escaped_input = input
+                .to_str()
+                .ok_or_else(|| color_eyre::eyre::eyre!("Non utf-8 in path"))?
+                .replace('/', "_");
+
+            let open_part = |part| {
+                open::with(
+                    criterion_profiles
+                        .join(part)
+                        .join(&escaped_input)
+                        .join("flamegraph.svg"),
+                    "firefox",
+                )
+            };
+
+            open_part("parsing").context("could not open parsing flamegraph")?;
+            open_part("part1").context("could not open part1 flamegraph")?;
+            open_part("part2").context("could not open part2 flamegraph")?;
+        }
         Some(Command::Bench { criterion_args }) => {
             let input = args.input.unwrap_or(input);
 
