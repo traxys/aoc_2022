@@ -32,7 +32,7 @@ macro_rules! print_res {
 macro_rules! print_res_part {
     ($($tt:tt)*) => {
         if (!std::env::var("AOC_BENCH").is_ok()) {
-            println!($($tt)*)
+            print!($($tt)*)
         }
     };
 }

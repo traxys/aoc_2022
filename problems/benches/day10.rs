@@ -1,6 +1,7 @@
+
 use bstr::BString;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use problems::solutions::day9::*;
+use problems::solutions::day10::*;
 
 mod perf;
 
