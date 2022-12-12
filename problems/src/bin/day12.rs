@@ -1,3 +1,4 @@
+
 fn main() -> color_eyre::Result<()> {
-    problems::solutions::day11::main()
+    problems::solutions::day12::main()
 }

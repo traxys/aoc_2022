@@ -13,6 +13,7 @@ either = "1.8.0"
 humantime = "2.1.0"
 itertools = "0.10.5"
 ndarray = "0.15.6"
+petgraph = "0.6.2"
 
 [dev-dependencies]
 criterion = "0.4"
@@ -64,4 +65,8 @@ harness = false
 
 [[bench]]
 name = "day11"
+harness = false
+
+[[bench]]
+name = "day12"
 harness = false
