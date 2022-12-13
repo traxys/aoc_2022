@@ -57,7 +57,7 @@ pub fn parsing(input: &BString) -> color_eyre::Result<Parsed> {
                 _ => elevation,
             } as i16;
 
-            if elevation == b'a'.into() {
+            if elevation == b'a' as i16 {
                 lowest_points.push(self_idx);
             };
 
