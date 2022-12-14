@@ -16,6 +16,7 @@ ndarray = "0.15.6"
 petgraph = "0.6.2"
 serde = { version = "1.0.150", features = ["derive"] }
 serde_json = "1.0.89"
+thiserror = "1.0.37"
 
 [dev-dependencies]
 criterion = "0.4"
@@ -73,7 +74,11 @@ harness = false
 name = "day12"
 harness = false
 
-                    [[bench]]
-                    name = "day13"
-                    harness = false
-                
+[[bench]]
+name = "day13"
+harness = false
+
+
+[[bench]]
+name = "day14"
+harness = false
