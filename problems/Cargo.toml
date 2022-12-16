@@ -11,6 +11,7 @@ clap = { version = "4.0.29", features = ["derive"] }
 color-eyre = "0.6.2"
 either = "1.8.0"
 humantime = "2.1.0"
+im = "15.1.0"
 itertools = "0.10.5"
 ndarray = "0.15.6"
 petgraph = "0.6.2"
@@ -85,4 +86,8 @@ harness = false
 
 [[bench]]
 name = "day15"
+harness = false
+
+[[bench]]
+name = "day16"
 harness = false
