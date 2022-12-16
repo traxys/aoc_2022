@@ -120,7 +120,7 @@ pub fn part1(input: Parsed) {
     #[derive(Debug, Clone, Eq)]
     struct Path {
         total_len: usize,
-        visited: im::HashSet<usize>,
+        visited: u64,
         path: Vector<usize>,
         relief: u64,
     }
@@ -154,7 +154,7 @@ pub fn part1(input: Parsed) {
     let mut paths = BinaryHeap::new();
     paths.push(Path {
         path: vector![start],
-        visited: im::HashSet::new(),
+        visited: 0,
         total_len: 0,
         relief: 0,
     });
@@ -178,7 +178,7 @@ pub fn part1(input: Parsed) {
         let mut added = false;
 
         for &non_zero in &non_zero_flow {
-            if path.visited.contains(&non_zero) {
+            if (1 << non_zero) & path.visited != 0 {
                 continue;
             }
 
@@ -187,7 +187,7 @@ pub fn part1(input: Parsed) {
                 added = true;
                 let mut new_path = path.clone();
                 new_path.total_len += distance + 1;
-                new_path.visited.insert(non_zero);
+                new_path.visited |= 1 << non_zero;
                 new_path.path.push_back(non_zero);
                 new_path.relief = path_score(&new_path);
 
@@ -224,7 +224,7 @@ pub fn part2(input: Parsed) {
         path: Vector<usize>,
         elephant_len: usize,
         elephant_path: Vector<usize>,
-        visited: im::HashSet<usize>,
+        visited: u64,
         relief: u64,
     }
 
@@ -261,7 +261,7 @@ pub fn part2(input: Parsed) {
     paths.push(Path {
         path: vector![start],
         elephant_path: vector![start],
-        visited: im::HashSet::new(),
+        visited: 0,
         total_len: 0,
         elephant_len: 0,
         relief: 0,
@@ -304,7 +304,7 @@ pub fn part2(input: Parsed) {
         let mut added = false;
 
         for &non_zero in &non_zero_flow {
-            if path.visited.contains(&non_zero) {
+            if path.visited & (1 << non_zero) != 0 {
                 continue;
             }
 
@@ -316,7 +316,7 @@ pub fn part2(input: Parsed) {
                     added = true;
                     let mut new_path = path.clone();
                     new_path.total_len += my_distance + 1;
-                    new_path.visited.insert(non_zero);
+                    new_path.visited |= 1 << non_zero;
                     new_path.path.push_back(non_zero);
                     new_path.relief = path_score(&new_path);
 
@@ -325,7 +325,7 @@ pub fn part2(input: Parsed) {
                     added = true;
                     let mut new_path = path.clone();
                     new_path.elephant_len += elephant_distance + 1;
-                    new_path.visited.insert(non_zero);
+                    new_path.visited |= 1 << non_zero;
                     new_path.elephant_path.push_back(non_zero);
                     new_path.relief = path_score(&new_path);
 
@@ -337,7 +337,7 @@ pub fn part2(input: Parsed) {
                 added = true;
                 let mut new_path = path.clone();
                 new_path.elephant_len += elephant_distance + 1;
-                new_path.visited.insert(non_zero);
+                new_path.visited |= 1 << non_zero;
                 new_path.elephant_path.push_back(non_zero);
                 new_path.relief = path_score(&new_path);
 
@@ -346,7 +346,7 @@ pub fn part2(input: Parsed) {
                 added = true;
                 let mut new_path = path.clone();
                 new_path.total_len += my_distance + 1;
-                new_path.visited.insert(non_zero);
+                new_path.visited |= 1 << non_zero;
                 new_path.path.push_back(non_zero);
                 new_path.relief = path_score(&new_path);
 
