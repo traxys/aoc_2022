@@ -98,11 +98,21 @@ fn layout(input: &Parsed) -> (Vec<usize>, impl Fn(usize, usize) -> usize) {
     }
 
     let shortest_paths = petgraph::algo::floyd_warshall(&graph, |_| 1).unwrap();
-    let distance = move |from: usize, to: usize| {
-        *shortest_paths
-            .get(&(graph_index[from], graph_index[to]))
-            .unwrap()
-    };
+    let mut distance_matrix = vec![0; shortest_paths.len()];
+    for source in 0..input.len() {
+        for dest in 0..input.len() {
+            let idx = source + dest * input.len();
+            if source == dest {
+                distance_matrix[idx] = 0;
+            } else {
+                distance_matrix[idx] = *shortest_paths
+                    .get(&(graph_index[source], graph_index[dest]))
+                    .unwrap()
+            }
+        }
+    }
+    let len = input.len();
+    let distance = move |from: usize, to: usize| distance_matrix[from + to * len];
 
     let non_zero_flow: Vec<_> = input
         .iter()
