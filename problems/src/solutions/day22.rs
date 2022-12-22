@@ -25,15 +25,22 @@ fn print_board(board: &Vec2D<Tile>) {
                 Tile::Void => print!("         "),
                 Tile::Space => print!(",.......,"),
                 Tile::Wall => print!("#########"),
-                Tile::Wraparound {
+                Tile::Wraparound(Wraparound {
+                    turn: _,
                     vertical,
                     horizontal,
-                } => {
+                }) => {
                     let opt_repr = |o: Option<i16>| match o {
                         None => "---".into(),
                         Some(v) => v.to_string(),
                     };
-                    print!("|{:>3}|{:>3}|", opt_repr(vertical), opt_repr(horizontal))
+                    print!(
+                        "|{:>2},{:>2}|{:>2},{:>2}|",
+                        opt_repr(vertical.map(|v| v.0)),
+                        opt_repr(vertical.map(|v| v.1)),
+                        opt_repr(horizontal.map(|v| v.0)),
+                        opt_repr(horizontal.map(|v| v.1)),
+                    )
                 }
             }
         }
@@ -42,14 +49,18 @@ fn print_board(board: &Vec2D<Tile>) {
 }
 
 #[derive(Clone, Copy, Debug)]
+pub struct Wraparound {
+    turn: [Option<Turn>; 2],
+    vertical: Option<(i16, i16)>,
+    horizontal: Option<(i16, i16)>,
+}
+
+#[derive(Clone, Copy, Debug)]
 pub enum Tile {
     Void,
     Space,
     Wall,
-    Wraparound {
-        vertical: Option<i16>,
-        horizontal: Option<i16>,
-    },
+    Wraparound(Wraparound),
 }
 
 #[derive(Clone, Debug)]
@@ -107,40 +118,42 @@ pub fn parsing(input: &BString) -> color_eyre::Result<Parsed> {
     let mut board_array = Vec2D::from_elem(line_count + 2, line_len + 2, Tile::Void);
     let mut cols: Vec<Option<usize>> = vec![None; line_len];
 
-    fn apply_horizontal_wraparound(location: i16, tile: &mut Tile) {
+    fn apply_horizontal_wraparound(location: i16, vertical: i16, tile: &mut Tile) {
         match tile {
             Tile::Space | Tile::Wall => unreachable!("Can't override tile with wraparound"),
             t @ Tile::Void => {
-                *t = Tile::Wraparound {
+                *t = Tile::Wraparound(Wraparound {
+                    turn: [None, None],
                     vertical: None,
-                    horizontal: Some(location),
-                }
+                    horizontal: Some((location, vertical)),
+                })
             }
-            Tile::Wraparound { horizontal, .. } => {
+            Tile::Wraparound(Wraparound { horizontal, .. }) => {
                 assert!(
                     horizontal.is_none(),
                     "Tried to overwrite horizontal wraparound"
                 );
-                *horizontal = Some(location)
+                *horizontal = Some((location, vertical))
             }
         }
     }
 
-    fn apply_vertical_wraparound(location: i16, tile: &mut Tile) {
+    fn apply_vertical_wraparound(location: i16, horizontal: i16, tile: &mut Tile) {
         match tile {
             Tile::Space | Tile::Wall => unreachable!("Can't override tile with wraparound"),
             t @ Tile::Void => {
-                *t = Tile::Wraparound {
-                    vertical: Some(location),
+                *t = Tile::Wraparound(Wraparound {
+                    turn: [None, None],
+                    vertical: Some((horizontal, location)),
                     horizontal: None,
-                }
+                })
             }
-            Tile::Wraparound { vertical, .. } => {
+            Tile::Wraparound(Wraparound { vertical, .. }) => {
                 assert!(
                     vertical.is_none(),
                     "Tried to overwrite horizontal wraparound"
                 );
-                *vertical = Some(location)
+                *vertical = Some((horizontal, location))
             }
         }
     }
@@ -159,10 +172,12 @@ pub fn parsing(input: &BString) -> color_eyre::Result<Parsed> {
                     if let Some(start) = cols[x] {
                         apply_vertical_wraparound(
                             y as _,
+                            (x + 1) as _,
                             &mut board_array.row_mut(start - 1)[x + 1],
                         );
                         apply_vertical_wraparound(
                             start as _,
+                            (x + 1) as _,
                             &mut board_array.row_mut(y + 1)[x + 1],
                         );
                         cols[x] = None;
@@ -172,10 +187,12 @@ pub fn parsing(input: &BString) -> color_eyre::Result<Parsed> {
                         row_start = None;
                         apply_horizontal_wraparound(
                             start as _,
+                            (y + 1) as _,
                             &mut board_array.row_mut(y + 1)[x + 1],
                         );
                         apply_horizontal_wraparound(
                             x as _,
+                            (y + 1) as _,
                             &mut board_array.row_mut(y + 1)[start - 1],
                         );
                     }
@@ -200,16 +217,29 @@ pub fn parsing(input: &BString) -> color_eyre::Result<Parsed> {
         }
         if let Some(start) = row_start {
             let board_row = board_array.row_mut(y + 1);
-            apply_horizontal_wraparound(start as _, &mut board_row[board_row.len() - 1]);
-            apply_horizontal_wraparound((board_row.len() - 2) as _, &mut board_row[start - 1]);
+            apply_horizontal_wraparound(
+                start as _,
+                (y + 1) as _,
+                &mut board_row[board_row.len() - 1],
+            );
+            apply_horizontal_wraparound(
+                (board_row.len() - 2) as _,
+                (y + 1) as _,
+                &mut board_row[start - 1],
+            );
         }
     }
     for (x, col) in cols.iter().enumerate() {
         if let &Some(start) = col {
             let nrows = board_array.nrows;
-            apply_vertical_wraparound(nrows as i16 - 2, &mut board_array.row_mut(start - 1)[x + 1]);
+            apply_vertical_wraparound(
+                nrows as i16 - 2,
+                (x + 1) as _,
+                &mut board_array.row_mut(start - 1)[x + 1],
+            );
             apply_vertical_wraparound(
                 start as _,
+                (x + 1) as _,
                 &mut board_array.row_mut(board_array.nrows - 1)[x + 1],
             );
         }
@@ -241,8 +271,15 @@ pub fn parsing(input: &BString) -> color_eyre::Result<Parsed> {
     ))
 }
 
+fn apply_turn((x, y): (i32, i32), turn: Turn) -> (i32, i32) {
+    match turn {
+        Turn::Clockwise => (-y, x),
+        Turn::CounterClockwise => (y, -x),
+    }
+}
+
 fn move_in_direction(
-    direction: (i32, i32),
+    mut direction: (i32, i32),
     mut x: i32,
     mut y: i32,
     amount: u16,
@@ -257,18 +294,26 @@ fn move_in_direction(
                 y = ny as i32;
             }
             Tile::Wall => break,
-            Tile::Wraparound {
+            Tile::Wraparound(Wraparound {
                 vertical,
                 horizontal,
-            } => {
-                let mut nx = nx;
-                let mut ny = ny;
+                turn,
+            }) => {
+                for t in &turn {
+                    if let &Some(t) = t {
+                        direction = apply_turn(direction, t);
+                    }
+                }
+                let nx: i16;
+                let ny: i16;
                 if direction.0 != 0 {
                     //println!("Horizontal wrap from {nx}/{ny} ({horizontal:?})");
-                    nx = horizontal.unwrap() as _;
+                    let (wx, wy) = horizontal.unwrap();
+                    (nx, ny) = (wx as _, wy as _);
                 } else {
                     //println!("Vertical wrap from {nx}/{ny} ({vertical:?})");
-                    ny = vertical.unwrap() as _;
+                    let (wx, wy) = vertical.unwrap();
+                    (nx, ny) = (wx as _, wy as _);
                 }
                 match board[(nx as usize, ny as usize)] {
                     Tile::Space => {
@@ -299,10 +344,7 @@ pub fn part1((board, movements): Parsed) {
     let mut direction = (1, 0);
     for (amount, turn) in movements.body {
         (x, y) = move_in_direction(direction, x, y, amount, &board);
-        match turn {
-            Turn::Clockwise => direction = (-direction.1, direction.0),
-            Turn::CounterClockwise => direction = (direction.1, -direction.0),
-        }
+        direction = apply_turn(direction, turn);
     }
     (x, y) = move_in_direction(direction, x, y, movements.last, &board);
 
