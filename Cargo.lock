@@ -797,6 +797,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "indoc"
+version = "1.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da2d6f23ffea9d7e76c53eee25dfb67bcd8fde7f1198b0855350698c9f07c780"
+
+[[package]]
 name = "inferno"
 version = "0.11.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1211,8 +1217,10 @@ dependencies = [
  "color-eyre",
  "criterion",
  "either",
+ "fnv",
  "humantime",
  "im",
+ "indoc",
  "itertools",
  "ndarray",
  "petgraph",
