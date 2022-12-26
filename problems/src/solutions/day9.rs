@@ -48,6 +48,11 @@ impl Rope {
         self.segments.first_mut().unwrap()
     }
 
+    fn segment_pair(&mut self, index: usize) -> (&mut (isize, isize), &mut (isize, isize)) {
+        let (start, end) = self.segments.split_at_mut(index + 1);
+        (start.last_mut().unwrap(), end.first_mut().unwrap())
+    }
+
     fn move_dir(&mut self, direction: Direction) {
         match direction {
             Direction::Left => {
@@ -64,21 +69,24 @@ impl Rope {
             }
         }
 
-        for i in 1..self.segments.len() {
-            if self.segments[i - 1].0.abs_diff(self.segments[i].0) > 1 {
-                self.segments[i].0 += (self.segments[i - 1].0 - self.segments[i].0).signum();
-                if self.segments[i - 1].1 != self.segments[i].1 {
-                    self.segments[i].1 += self.segments[i - 1].1 - self.segments[i].1;
-                }
-            } else if self.segments[i - 1].1.abs_diff(self.segments[i].1) > 1 {
-                self.segments[i].1 += (self.segments[i - 1].1 - self.segments[i].1).signum();
-                if self.segments[i - 1].0 != self.segments[i].0 {
-                    self.segments[i].0 += self.segments[i - 1].0 - self.segments[i].0;
-                }
+        for i in 0..self.segments.len() - 1 {
+            let (point, next) = self.segment_pair(i);
+            let x_dir = point.0 - next.0;
+            let y_dir = point.1 - next.1;
+
+            let unit = |v: isize| if v != 0 { v / v.abs() } else { 0 };
+
+            if x_dir.abs() >= 2 || y_dir.abs() >= 2 {
+                let x_dir = unit(x_dir);
+                let y_dir = unit(y_dir);
+
+                next.0 += x_dir;
+                next.1 += y_dir;
             }
         }
     }
 
+    #[allow(dead_code)]
     fn display_in(&self, (x_min, x_max): (isize, isize), (y_min, y_max): (isize, isize)) {
         for y in (y_min..=y_max).rev() {
             for x in x_min..=x_max {
@@ -119,12 +127,9 @@ pub fn part2(input: Parsed) {
     let mut visited_tails = HashSet::new();
     visited_tails.insert(*rope.segments.last().unwrap());
     for (dir, amount) in input {
-        dbg!(dir, amount);
         for _ in 0..amount {
-            println!();
             rope.move_dir(dir);
             visited_tails.insert(*rope.segments.last().unwrap());
-            rope.display_in((0, 5), (0, 4));
         }
     }
 
