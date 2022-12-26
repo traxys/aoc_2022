@@ -17,7 +17,7 @@
         inherit system;
         overlays = [(import rust-overlay)];
       };
-      rust = pkgs.rust-bin.stable.latest.default;
+      rust = pkgs.rust-bin.beta.latest.default;
     in {
       devShell = pkgs.mkShell {
         nativeBuildInputs = [rust pkgs.cargo-criterion];
